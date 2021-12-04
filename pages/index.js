@@ -2,15 +2,16 @@ import Head from 'next/head'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import useSWR from 'swr'
+import moment from 'moment'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
 function Spots( {limit} ) {
   const { data, error } = useSWR('https://db1.wspr.live/?query= \
-    SELECT max(time) as datetime, max(tx_sign) as call, max(tx_lat) as lat, max(tx_lon) as lon, tx_loc FROM wspr.rx \
+    SELECT max(time) as seen, tx_sign as call, tx_lat, tx_lon FROM wspr.rx \
     WHERE band=14 \
     AND tx_sign=\'LY1BWB\' \
-    GROUP BY tx_loc \
+    GROUP BY tx_lat, tx_lon, tx_sign \
     ORDER BY max(time) DESC \
     LIMIT ' + limit + ' FORMAT JSONCompact',
   fetcher)
@@ -25,9 +26,10 @@ function Spots( {limit} ) {
       </tr>
       {data.data.map((item) => (
         <tr key={item.id}>
-          {item.map((val) => (
-            <td>{val}</td>
-          ))}
+          <td>{moment(item[0], "YYYY-MM-DD HH:mm:ss").fromNow()}</td>
+          <td>{item[1]}</td>
+          <td>{item[2]}</td>
+          <td>{item[3]}</td>
         </tr>
       ))}
     </table>
