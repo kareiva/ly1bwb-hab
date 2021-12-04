@@ -7,11 +7,12 @@ const fetcher = (url) => fetch(url).then((res) => res.json())
 
 function Spots( {limit} ) {
   const { data, error } = useSWR('https://db1.wspr.live/?query= \
-  SELECT time, tx_sign, rx_sign, tx_lat, tx_lon, tx_loc, power, snr FROM wspr.rx \
-  WHERE band=14 \
-  AND tx_sign=\'LY1BWB\' \
-  ORDER BY time DESC \
-  LIMIT ' + limit + ' FORMAT JSONCompact',
+    SELECT max(time) as datetime, max(tx_sign) as call, max(tx_lat) as lat, max(tx_lon) as lon, tx_loc FROM wspr.rx \
+    WHERE band=14 \
+    AND tx_sign=\'LY1BWB\' \
+    GROUP BY tx_loc \
+    ORDER BY max(time) DESC \
+    LIMIT ' + limit + ' FORMAT JSONCompact',
   fetcher)
 
   if (error) return <div>failed to load</div>
@@ -45,7 +46,7 @@ export default function Home() {
       <main>
         <Header title="LY1BWB flight data!" />
         <p className="description">
-          <Spots limit="12" />
+          <Spots limit="15" />
         </p>
       </main>
 
