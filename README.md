@@ -1,10 +1,6 @@
-# This project has been moved!!
+# LY1BWB flight data
 
-[Go here to see the latest repo](https://github.com/netlify-templates/next-netlify-starter)!
-
-Deploy the official Netlify version here:
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/next-netlify-starter)
+A minimal Next.js application to fetch and display latest high altitude balloon flight data from wspr.live.
 
 ## Next + Netlify Starter
 
