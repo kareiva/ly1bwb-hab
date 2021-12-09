@@ -26,7 +26,7 @@ function Spots( {limit} ) {
       </tr>
       {data.data.map((item) => (
         <tr key={item.id}>
-          <td>{moment(item[0], "YYYY-MM-DD HH:mm:ss").fromNow()}</td>
+          <td>{moment(item[0] + ' GMT', "YYYY-MM-DD HH:mm:ss").fromNow()}</td>
           <td>{item[1]}</td>
           <td>{item[2]}</td>
           <td>{item[3]}</td>
@@ -48,7 +48,7 @@ export default function Home() {
       <main>
         <Header title="LY1BWB flight data!" />
         <p className="description">
-          <Spots limit="15" />
+          <Spots limit="5" />
         </p>
       </main>
 
