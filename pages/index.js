@@ -8,16 +8,28 @@ import utc from 'dayjs/plugin/utc'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
-function Spots( {limit} ) {
-  const { data, error } = useSWR('https://db1.wspr.live/?query= \
-    SELECT max(time) as seen, tx_loc as location, tx_lat, tx_lon FROM wspr.rx \
+function Spots( {limit, callsign='LY1BWB'} ) {
+  var query = ''
+  if (callsign == 'LY1BWB') {
+    query = 'https://db1.wspr.live/?query= \
+      SELECT max(time) as seen, tx_loc as location, tx_lat, tx_lon FROM wspr.rx \
+      WHERE band=14 \
+      AND tx_sign LIKE \'' + callsign +'\' \
+      GROUP BY tx_lat, tx_lon, tx_loc \
+      ORDER BY max(time) DESC \
+      LIMIT ' + limit + ' FORMAT JSONCompact'
+  }
+  else {
+    query = 'https://db1.wspr.live/?query= \
+    SELECT max(time) as seen, tx_sign as tele1, tx_loc as tele2, power as tele3 FROM wspr.rx \
     WHERE band=14 \
-    AND tx_sign=\'LY1BWB\' \
-    GROUP BY tx_lat, tx_lon, tx_loc \
+    AND tx_sign LIKE \'' + callsign +'\' \
+    AND modulo(EXTRACT(MINUTE FROM time), 10) = 2 \
+    GROUP BY tx_sign, tx_loc, power \
     ORDER BY max(time) DESC \
-    LIMIT ' + limit + ' FORMAT JSONCompact',
-  fetcher)
-
+    LIMIT ' + limit + ' FORMAT JSONCompact'
+  }
+  const { data, error } = useSWR(query, fetcher)
   if (error) return <div>failed to load</div>
   if (!data) return <div>loading...</div>
   dayjs.extend(relativeTime)
@@ -50,9 +62,13 @@ export default function Home() {
       </Head>
 
       <main>
-        <Header title="LY1BWB flight data!" />
+        <Header title="LY1BWB flight data:" />
         <p className="description">
-          <Spots limit="5" />
+          <Spots limit="5" callsign='LY1BWB'/>
+        </p>
+        <Header title="LY1BWB telemetry:" />
+        <p className="description">
+          <Spots limit="5" callsign='Q_0___'/>
         </p>
       </main>
 
